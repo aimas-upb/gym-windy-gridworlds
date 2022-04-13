@@ -13,6 +13,8 @@ class WindyGridWorldEnv(gym.Env):
                  REWARD = -1):
         self.grid_height = GRID_HEIGHT
         self.grid_width = GRID_WIDTH
+        self.grid_dimensions = (self.grid_height, self.grid_width)
+
         self.wind = WIND
         self.start_state = START_STATE
         self.goal_state = GOAL_STATE
@@ -25,22 +27,47 @@ class WindyGridWorldEnv(gym.Env):
                          'R':1,   #right
                          'D':2,   #down
                          'L':3 }  #left
-        
+
+        self.nS = self.dim2to1((self.grid_height - 1, self.grid_width - 1)) + 1
+        self.nA = len(self.actions)
+
+        self.P = {
+            state: {action: [] for action in range(self.nA)}
+            for state in range(self.nS)
+        }
+
         # set up destinations for each action in each state
         self.action_destination = np.empty((self.grid_height,self.grid_width), dtype=dict)
         for i in range(0, self.grid_height):
             for j in range(0, self.grid_width):
                 destination = dict()
                 destination[self.actions['U']] = (max(i - 1 - self.wind[j], 0), j)
-                destination[self.actions['D']] = (max(min(i + 1 - self.wind[j], \
+                destination[self.actions['D']] = (max(min(i + 1 - self.wind[j],
                                                     self.grid_height - 1), 0), j)
-                destination[self.actions['L']] = (max(i - self.wind[j], 0),\
+                destination[self.actions['L']] = (max(i - self.wind[j], 0),
                                                        max(j - 1, 0))
-                destination[self.actions['R']] = (max(i - self.wind[j], 0),\
+                destination[self.actions['R']] = (max(i - self.wind[j], 0),
                                                    min(j + 1, self.grid_width - 1))
-                self.action_destination[i,j]=destination
-        self.nA = len(self.actions)        
-        
+                self.action_destination[i, j]=destination
+
+                for action in self.actions:
+                    self.P[self.dim2to1((i, j))][self.actions[action]].append((1.0,
+                                                                 self.dim2to1(destination[self.actions[action]]),
+                                                                 REWARD,
+                                                                 (i, j) == GOAL_STATE
+                                                                 ))
+        self.initial_state_distrib = np.zeros(self.nS)
+        self.initial_state_distrib[self.dim2to1(self.start_state)] = 1.0
+
+
+    def dim2to1(self, cell):
+        '''Transforms the 2 dim position in a grid world to 1 state'''
+        return np.ravel_multi_index(cell, self.grid_dimensions)
+
+    def dim1to2(self, state):
+        '''Transforms the state in a grid world back to its 2 dim cell'''
+        return np.unravel_index(state, self.grid_dimensions)
+
     def step(self, action):
         """
         Parameters
