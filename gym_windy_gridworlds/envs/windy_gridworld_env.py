@@ -101,33 +101,36 @@ class WindyGridWorldEnv(gym.Env):
         ''' Renders the environment. Code borrowed and then modified 
             from
             https://github.com/openai/gym/blob/master/gym/envs/toy_text/cliffwalking.py'''
-        outfile = sys.stdout
-        nS = self.grid_height * self.grid_width
-        shape = (self.grid_height, self. grid_width)
+        
+        try:
+            outfile = sys.stdout
+            nS = self.grid_height * self.grid_width
+            shape = (self.grid_height, self. grid_width)
 
-        outboard = ""
-        for y in range(-1, self.grid_height + 1):
-            outline = ""
-            for x in range(-1, self.grid_width + 1):
-                position = (y, x)
-                if self.observation == position:
-                    output = "X"
-                elif position == self.goal_state:
-                    output = "G"
-                elif position == self.start_state:
-                    output = "S"
-                elif x in {-1, self.grid_width } or y in {-1, self.grid_height}:
-                    output = "#"
-                else:
-                    output = " "
+            outboard = ""
+            for y in range(-1, self.grid_height + 1):
+                outline = ""
+                for x in range(-1, self.grid_width + 1):
+                    position = (y, x)
+                    if self.observation == position:
+                        output = "X"
+                    elif position == self.goal_state:
+                        output = "G"
+                    elif position == self.start_state:
+                        output = "S"
+                    elif x in {-1, self.grid_width } or y in {-1, self.grid_height}:
+                        output = "#"
+                    else:
+                        output = " "
 
-                if position[1] == shape[1]:
-                    output += '\n'
-                outline += output
-            outboard += outline
-        outboard += '\n'
-        outfile.write(outboard)
-
+                    if position[1] == shape[1]:
+                        output += '\n'
+                    outline += output
+                outboard += outline
+            outboard += '\n'
+            outfile.write(outboard)
+        except AttributeError:
+            raise RuntimeError("You should first reset the environment.")
     def seed(self, seed=None):
         pass
 
