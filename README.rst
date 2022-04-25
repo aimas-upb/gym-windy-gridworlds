@@ -35,6 +35,26 @@ Usage
         $ import gym_windy_gridworlds
         $ env = gym.make('WindyGridWorld-v0')  
 
+If you are using Google Colab, run in separate cells the following commands:
+
+.. code::
+
+	!git clone https://github.com/aimas-upb/gym-windy-gridworlds
+
+.. code::
+
+	!pip install -e ./gym-windy-gridworlds
+	
+.. code::
+
+	%cd gym-windy-gridworlds
+
+.. code::
+
+	import gym_windy_gridworlds
+	import gym
+	env = gym.make('WindyGridWorld-v0')
+
 ``WindyGridWorld-v0``
 ----------------
 
